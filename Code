@@ -58,19 +58,17 @@
  final boss leg graphics
  
  BOSS PROBLEMS:
- rapid fire boss destroys itself
- damage all parts boss does not damage all parts
- damage all parts boss does not have custom design
- infinite damage boss gives negative credits
- infinite damage boss has super fast particles on hit
+   rapid fire boss destroys itself
+   damage all parts boss does not damage all parts
+   damage all parts boss does not have custom design
  spider drones do not fire
  spider needs a big weapon
  
  
  TODO:
+ remove emitter limit
    make maximum overshield amount (5X normal health)
  make universe map
-   fix bosses not giving the correct number of credits for winning
    fix ships destroying themselves
    make ship editor have displays for RMB and LMB
      fix all bosses 
@@ -192,7 +190,8 @@ static int sprites2[][] = {
   , {13, 13, 73, 8, 8, 8, 8, 8, 7, 7, 7, 8, 8, 8, 8, 8, 0, 0, 0, 8, 8, 8, 8, 8, 8, 0, 0, 8, 8, 8, 8, 8, 8, 0, 0, 8, 8, 8, 8, 8, 0, 0, 0, 8, 8, 8, 8, 8, 7, 7, 7, 8, 8, 8, 8, 8, 13, 13, 76, 8, 8, 8, 8, 8}
 };
 float shiplvl1[][]={
-
+  {23,23,23,24,23,23,23,23,17,16,30,23,23,23,18,22,31,23,23,23,23,20,23,23,23,23,23,23,23,23,23,23,23,23,23,23},
+  {23,23,23,23,23,23,23,23,23,23,23,23,23,23,35,37,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23,23},
   //old
   {0, 0, 0, 0, 0, 0, 0, 4, 1, 1, 2, 0, 9, 6, 6, 6, 6, 3, 3, 1, 1, 1, 1, 10, 0, 3, 1, 1, 5, 0, 0, 0, 0, 0, 0, 0}, 
   {5, 6, 6, 6, 6, 3, 2, 6, 6, 6, 3, 10, 6, 6, 6, 6, 4, 3, 5, 6, 6, 6, 6, 4, 2, 6, 6, 6, 6, 3, 1, 1, 1, 1, 1, 10}
@@ -746,7 +745,7 @@ float MPF=0;
 float maxframerate=30;
 //start of main game loop
 void draw() {
-  System.out.println(damagemap2[18]);
+  //System.out.println(damagemap2[18]);
   //System.out.println(delay2);
   //resize=(float)min(height, width)/1000;
   //planetsize++;
@@ -1555,7 +1554,7 @@ square(particles4[i][0],particles4[i][1]+height/particlerepetition*j,particles4[
               drones[i][0]=random(width/2, width);
               drones[i][1]=random(height, height+500);
             }
-            drones[i][2]=dronedelay*random(0.5, 1);
+            drones[i][2]=dronedelay*random(0.5, 1.5);
             drones[i][3]=shipx2+randomGaussian()*100;
             drones[i][4]=shipy2+randomGaussian()*100;
             drones[i][5]=0;
@@ -1848,18 +1847,20 @@ square(particles4[i][0],particles4[i][1]+height/particlerepetition*j,particles4[
     }
   }
   if (scene==10) {//defeat screen
-    boss=0;
+    
     textSize(200*resize);
     text("DEFEAT", width/2-textWidth("DEFEAT")/2, height*0.35);
     if (button(width/2, height*0.7, 500*resize, 120*resize, "Continue")) {
       scene2=4;
       scene=-1;
       lastscene=3;
+      boss=0;
+      bosshealth=1000;
     }
   } else if (scene==9) {//victory screen
-    //System.out.println(objectnumb);
+    System.out.println(boss);
     visited[currentobject]=true;
-    boss=0;
+    
     textSize(200*resize);
     text("Victory!", width/2-textWidth("Victory!")/2, height*0.35);
     fill(200, 200, 0);
@@ -1869,12 +1870,13 @@ square(particles4[i][0],particles4[i][1]+height/particlerepetition*j,particles4[
     //lvl 2 = 500
     //lvl 3 = 1000
     if (boss!=0) {
-      text("Credits Gained:"+(5000), width/2-textWidth("Credits Gained:"+(500))/2, height/2);
+      text("Credits Gained:"+(5000), width/2-textWidth("Credits Gained:"+(5000))/2, height/2);
       if (button(500, 700, 600, 90, "Claim Rewards")) {
         money+=5000;
         scene=-1;
         scene2=4;
         lastscene=3;
+        boss=0;
       }
     } else {
       text("Credits Gained:"+(enemydmg*enemydmg*100+100), width/2-textWidth("Credits Gained:"+(enemydmg*enemydmg*100+100))/2, height/2);
@@ -2912,8 +2914,9 @@ square(particles4[i][0],particles4[i][1]+height/particlerepetition*j,particles4[
 
     for (int i=0; i<projectiles.length; i++) {
 
-      if (boss==9&&round(projectiles[i][2])!=0&&projectiles[i][0]>planetx-15&&projectiles[i][0]<planetx+15&&projectiles[i][1]>planety-15&&projectiles[i][1]<planety+15) {
+      if (boss==9&&round(projectiles[i][2])!=3&&round(projectiles[i][2])!=0&&projectiles[i][0]>planetx-15&&projectiles[i][0]<planetx+15&&projectiles[i][1]>planety-15&&projectiles[i][1]<planety+15) {
         bosshealth-=projectiles[i][3];
+        System.out.println(projectiles[i][2]);
         projectiles[i][2]=0;
       }
 
@@ -3328,11 +3331,11 @@ square(particles4[i][0],particles4[i][1]+height/particlerepetition*j,particles4[
             case 3://pierce
               tempx = findx(projectiles[i][0], shipx, 5);
               tempy = findx(projectiles[i][1], shipy, 5);
+              
               if (tempx<6&&tempx>-1&&tempy<6&&tempy>-1) {
 
-
                 temppart=min(damagemap[tempx+tempy*6], projectiles[i][3]);
-                if (projectiles[i][6]==0&&projectiles[i][3]>0) {//deleted this: temppart+1>projectiles[i][3]&&    not sure if important
+                if (temppart+1>projectiles[i][3]&&projectiles[i][6]==0&&projectiles[i][3]>0) {//deleted this:   temppart+1>projectiles[i][3]&&    not sure if important
                   switch (round(projectiles[i][2])) {
                   case 1://right
                     xvel+=min(sqrt(projectiles[i][3]/2)/knockback,5);
@@ -3633,10 +3636,12 @@ square(particles4[i][0],particles4[i][1]+height/particlerepetition*j,particles4[
         //} 
 
         if ((drones[j][2]<=0)&&(boss==9||scene==8||drones[j][0]<width/2)) {
+          
           drones[j][2]=dronedelay*random(0.5, 1);
           if (random(fireratemodifier)<=1) {
             
-            if(scene!=8||(scene==8&&drones[j][0]<width/2)){
+            if(scene!=8||boss==9||(scene==8&&drones[j][0]<width/2)){
+              
             for (int i=0; i<projectiles.length; i++) {
               if (projectiles[i][2]==0) {
                 // temparray=findpart(shipx2, shipy2, 5, 6, ship2, 10, skip, damagemap2);
