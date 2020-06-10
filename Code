@@ -421,7 +421,7 @@ int secondpart2=0;
 
 
 //settings
-boolean debug=false;
+boolean debug=true;
 boolean cheat=true;
 boolean simpledrones=false;
 float trailsize=5;//setting
@@ -754,6 +754,16 @@ void draw() {
   //upside down
   //rotate(PI);
   //translate(-1000,-1000);
+
+    if(keyPressed&&key=='u'){
+      System.out.println();
+      System.out.println(); 
+      for(int i=0;i<damagemap2.length;i++){
+      System.out.print(damagemap2[i]+" "+i+" | ");
+      }
+      System.out.println();
+      System.out.println();
+    }
 
   //if (debug) {
   //  if (keyPressed&&key=='h') {
